@@ -5,7 +5,8 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import { PancakeSwapListener } from './listeners/PancakeSwapListener';
 import { RaydiumListener } from './listeners/RaydiumListener';
-import prisma from './utils/prisma';
+import ammRoutes from './routes/ammRoutes';
+import networkRoutes from './routes/networkRoutes';
 
 dotenv.config();
 
@@ -17,6 +18,10 @@ const io = new Server(server);
 app.use(cors());
 app.use(express.json());
 
+// Use routes
+app.use('/api', ammRoutes);
+app.use('/api', networkRoutes);
+
 // Initialize AMM Listeners
 const pancakeSwapListener = new PancakeSwapListener(io);
 pancakeSwapListener.startListening();
@@ -26,50 +31,6 @@ raydiumListener.startListening();
 
 app.get('/', (req, res) => {
   res.send('Blockchain Pair Detector Backend');
-});
-
-app.get('/amms', async (req, res) => {
-  try {
-    const amms = await prisma.aMM.findMany();
-    res.json(amms);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.post('/networks', async (req, res) => {
-  const { name, rpcUrl, explorerUrl } = req.body;
-  try {
-    const network = await prisma.network.create({
-      data: {
-        name,
-        rpcUrl,
-        explorerUrl,
-      },
-    });
-    res.json(network);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/swap-pairs/:ammId', async (req, res) => {
-  const { ammId } = req.params;
-  try {
-    const pairs = await prisma.swapPair.findMany({
-      where: { ammId: parseInt(ammId, 10) },
-      include: {
-        token0: true,
-        token1: true,
-      },
-    });
-    res.json(pairs);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 });
 
 // Start Server
