@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Pair" ALTER COLUMN "reserve0" DROP NOT NULL,
+ALTER COLUMN "reserve1" DROP NOT NULL;

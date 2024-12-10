@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Token" ALTER COLUMN "name" DROP NOT NULL,
+ALTER COLUMN "symbol" DROP NOT NULL;

@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Use your preferred database provider
+  url      = env("DATABASE_URL") // Add your database URL in the environment variables
+}
+
+model Network {
+  id              Int     @id @default(autoincrement())
+  name            String  @unique
+  networkIdentify String?
+  description     String?
+  rpcUrl          String? // Optional RPC URL for network interaction
+  wsUrl          String?
+  explorerUrl     String? // Optional Block explorer URL
+  amms            AMM[] // Relation to AMMs
+  tokens          Token[] // Relation to Tokens
+}
+
+model AMM {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  networkId   Int
+  network     Network    @relation(fields: [networkId], references: [id])
+  swapPairs   SwapPair[] // Relation to SwapPairs
+}
+
+model Token {
+  id         Int        @id @default(autoincrement())
+  symbol     String?
+  name       String?
+  address    String // Contract address
+  networkId  Int
+  network    Network    @relation(fields: [networkId], references: [id])
+  token0Swap SwapPair[] @relation("Token0SwapPair")
+  token1Swap SwapPair[] @relation("Token1SwapPair")
+
+  @@unique([address, networkId])
+}
+
+model SwapPair {
+  id           Int                  @id @default(autoincrement())
+  token0Id     Int
+  token1Id     Int
+  ammId        Int
+  pairAddress  String
+  amm          AMM                  @relation(fields: [ammId], references: [id])
+  token0       Token                @relation("Token0SwapPair", fields: [token0Id], references: [id])
+  token1       Token                @relation("Token1SwapPair", fields: [token1Id], references: [id])
+  pairDetail   PairDetail? // Optional relation to PairDetails
+  transactions TransactionHistory[]
+}
+
+model PairDetail {
+  id            Int      @id @default(autoincrement())
+  pairId        Int      @unique
+  reserveToken0 Float
+  reserveToken1 Float
+  feeTier       Float? // Optional Fee tier for the pair
+  lastUpdated   DateTime
+  swapPair      SwapPair @relation(fields: [pairId], references: [id])
+}
+
+model TransactionHistory {
+  id              Int      @id @default(autoincrement())
+  pairId          Int
+  transactionHash String
+  amountIn        Float
+  amountOut       Float
+  timestamp       DateTime
+  swapPair        SwapPair @relation(fields: [pairId], references: [id])
+}
