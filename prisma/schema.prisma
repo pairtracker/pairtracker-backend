@@ -17,6 +17,8 @@ model Network {
   explorerUrl     String? // Optional Block explorer URL
   amms            AMM[] // Relation to AMMs
   tokens          Token[] // Relation to Tokens
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model AMM {
@@ -26,6 +28,8 @@ model AMM {
   networkId   Int
   network     Network    @relation(fields: [networkId], references: [id])
   swapPairs   SwapPair[] // Relation to SwapPairs
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model Token {
@@ -37,6 +41,8 @@ model Token {
   network    Network    @relation(fields: [networkId], references: [id])
   token0Swap SwapPair[] @relation("Token0SwapPair")
   token1Swap SwapPair[] @relation("Token1SwapPair")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   @@unique([address, networkId])
 }
@@ -52,6 +58,8 @@ model SwapPair {
   token1       Token                @relation("Token1SwapPair", fields: [token1Id], references: [id])
   pairDetail   PairDetail? // Optional relation to PairDetails
   transactions TransactionHistory[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model PairDetail {
@@ -62,6 +70,8 @@ model PairDetail {
   feeTier       Float? // Optional Fee tier for the pair
   lastUpdated   DateTime
   swapPair      SwapPair @relation(fields: [pairId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model TransactionHistory {
@@ -72,4 +82,6 @@ model TransactionHistory {
   amountOut       Float
   timestamp       DateTime
   swapPair        SwapPair @relation(fields: [pairId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
