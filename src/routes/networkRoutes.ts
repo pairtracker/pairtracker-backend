@@ -20,4 +20,9 @@ router.post('/networks', async (req, res) => {
   }
 });
 
+router.get('/networks', async (req, res) => {
+  const networks = await prisma.network.findMany();
+  res.json(networks);
+});
+
 export default router;
