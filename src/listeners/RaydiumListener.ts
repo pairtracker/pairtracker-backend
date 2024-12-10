@@ -83,9 +83,9 @@ export class RaydiumListener {
                 } else if ('parsed' in instruction && 'info' in instruction.parsed) {
                     accounts = instruction.parsed.info.accounts.map((acc: string) => acc);
                 }
-                const [tokenA, tokenB] = [accounts[8], accounts[9]];
-                console.log(`New pool with Token A: ${tokenA} and Token B: ${tokenB}`);
-                this.io.emit('newPoolDetails', { tokenA, tokenB });
+                const [tokenA, tokenB, pairAddress] = [accounts[8], accounts[9], accounts[4]];
+                console.log(`New pool with Token A: ${tokenA} and Token B: ${tokenB} and pairAddress: ${pairAddress} and accounts: ${accounts}`);
+                this.io.emit('newPoolDetails', { tokenA, tokenB, pairAddress });
 
                 // Save to database
                 try {
@@ -95,7 +95,7 @@ export class RaydiumListener {
                             token0Id: await this.createOrGetTokenId(tokenA, networkId),
                             token1Id: await this.createOrGetTokenId(tokenB, networkId),
                             ammId: ammId,
-                            pairAddress: signature // Using signature as a unique identifier
+                            pairAddress: pairAddress
                         }
                     });
                     console.log('Pool saved to database');

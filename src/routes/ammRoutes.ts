@@ -17,10 +17,15 @@ router.get('/swap-pairs/:ammId', async (req, res) => {
     const { ammId } = req.params;
     try {
         const pairs = await prisma.swapPair.findMany({
-            where: { ammId: parseInt(ammId, 10) },
+            // where: { ammId: parseInt(ammId, 10) },
             include: {
                 token0: true,
                 token1: true,
+                amm: {
+                    select: {
+                        networkId: true,
+                    }
+                },
             },
             take: 10,
             orderBy: {
